@@ -1,96 +1,46 @@
-#include <stdio.h>
-#define N 20
-
-int pid[N], at[N], bt[N], pr[N], wt[N], tat[N], seq[N], done[N], gc[N];
-int n = 0, t = 0, m = 0, a = 0;
-
-void input() {
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
-    for (int i = 0; i < n; i++) {
-        printf("Process ID: ");
-        scanf("%d", &pid[i]);
-        printf("Priority of P%d: ", pid[i]);
-        scanf("%d", &pr[i]);
-        printf("Arrival time of P%d: ", pid[i]);
-        scanf("%d", &at[i]);
-        printf("Burst time of P%d: ", pid[i]);
-        scanf("%d", &bt[i]);
-    }
-}
-
-int min_pos(int arr[], int len) {
-    int min = arr[0], pos = 0;
-    for (int i = 1; i < len; i++) {
-        if (arr[i] < min) {
-            min = arr[i];
-            pos = i;
-        }
-    }
-    return pos;
-}
-
-void schedule() {
-    while (a < n) {
-        gc[m++] = t;
-        int found = 0, min_p = 1e9, min_at = 1e9, idx = -1;
-        for (int i = 0; i < n; i++) {
-            if (!done[i] && at[i] <= t) {
-                if (pr[i] < min_p || (pr[i] == min_p && at[i] < min_at)) {
-                    min_p = pr[i];
-                    min_at = at[i];
-                    idx = i;
-                    found = 1;
-                }
-            }
-        }
-
-        if (!found) {
-            int next_t = 1e9;
-            for (int i = 0; i < n; i++) {
-                if (!done[i] && at[i] < next_t) next_t = at[i];
-            }
-            t = next_t;
-            gc[m++] = t;
-            continue;
-        }
-
-        seq[a++] = pid[idx];
-        wt[idx] = t - at[idx];
-        t += bt[idx];
-        tat[idx] = wt[idx] + bt[idx];
-        done[idx] = 1;
-    }
-    gc[m] = t;
-}
-
-void print() {
-    printf("\nPID\tPrio\tAT\tBT\tWT\tTAT\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d\t%d\t%d\t%d\t%d\t%d\n", pid[i], pr[i], at[i], bt[i], wt[i], tat[i]);
-    }
-}
-
-void gantt() {
-    printf("\nGantt Chart:\n-----------------------------------\n");
-    for (int i = 0; i < a; i++) printf("| P%d ", seq[i]);
-    printf("|\n-----------------------------------\n");
-    for (int i = 0; i <= a; i++) printf("%d\t", gc[i]);
-    printf("\n");
-}
-
-float avg(int arr[]) {
-    int sum = 0;
-    for (int i = 0; i < n; i++) sum += arr[i];
-    return (float)sum / n;
-}
-
-int main() {
-    input();
-    schedule();
-    print();
-    gantt();
-    printf("\nAvg Waiting Time: %.2f", avg(wt));
-    printf("\nAvg Turnaround Time: %.2f\n", avg(tat));
-    return 0;
-}
+#include<stdio.h> 
+int main() 
+{ int bt[20], p[20], wt[20], tt[20], pr[20]; 
+int i, j, limit, sum = 0, position, temp; 
+float avg_wt, avg_tt; 
+printf("Enter Total Number of Processes:\t"); 
+scanf("%d", &limit); 
+printf("\nEnter Burst Time and Priority For %d Processes\n", limit); 
+for(i = 0; i < limit; i++) 
+{ printf("\nProcess[%d]\n", i + 1); 
+printf("Process Burst Time:\t"); 
+scanf("%d", &bt[i]); 
+printf("Process Priority:\t"); 
+scanf("%d", &pr[i]); 
+p[i] = i + 1; } 
+for(i = 0; i < limit; i++) 
+{ position = i; 
+for(j = i + 1; j < limit; j++) 
+{ if(pr[j] < pr[position]) 
+{ position = j; }}
+temp = pr[i]; 
+pr[i] = pr[position]; 
+pr[position] = temp; 
+temp = bt[i]; 
+bt[i] = bt[position]; 
+bt[position] = temp; 
+temp = p[i]; 
+p[i] = p[position]; 
+p[position] = temp; }
+wt[0] = 0; 
+for(i = 1; i < limit; i++) 
+{ wt[i] = 0; 
+for(j = 0; j < i; j++) 
+wt[i] = wt[i] + bt[j]; 
+sum = sum + wt[i];}
+avg_wt = sum / limit; 
+sum = 0; 
+printf("\nProcess ID\t\tBurst Time\t Waiting Time\t Turnaround Time\n"); 
+for(i = 0; i < limit; i++) 
+{ tt[i] = bt[i] + wt[i]; 
+sum = sum + tt[i]; 
+printf("\n%d\t\t%d\t\t %d\t\t %d\n", p[i], bt[i], wt[i], tt[i]); }
+avg_tt = sum / limit; 
+printf("\nAverage Waiting Time:\t%f", avg_wt); 
+printf("\nAverage Turnaround Time:\t%f\n", avg_tt); 
+return 0; }
